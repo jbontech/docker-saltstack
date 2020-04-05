@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+  saltmaster:
+    build: saltmaster
+    image: saltmaster
+    environment:
+      SALT_USE: master
+      LOG_LEVEL: debug
+      MASTER_LOG_LEVEL: debug
+    hostname: master
+    privileged: true
+    expose:
+      - "4505"
+      - "4506"
+    volumes:
+      - ./saltmaster/srv:/srv
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /run
+      - /tmp      
+
+  minion01:
+    build: saltminion
+    hostname: minion01
+    image: saltminion
+    environment:
+      SALT_USE: minion
+      LOG_LEVEL: debug    
+    restart: always
+    depends_on:
+      - saltmaster
+
+  minion02:
+    build: saltminion
+    hostname: minion02
+    image: saltminion
+    environment:
+      SALT_USE: minion
+      LOG_LEVEL: debug    
+    restart: always
+    depends_on:
+      - saltmaster
